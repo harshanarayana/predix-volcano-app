@@ -11,3 +11,4 @@ python-dateutil>=2.6.0
 PyYAML>=3.12
 sphinx_rtd_theme
 sphinxcontrib-httpdomain
+future==0.15.2

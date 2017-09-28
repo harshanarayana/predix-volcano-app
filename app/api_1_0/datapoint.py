@@ -1,4 +1,5 @@
-
+import os
+import json
 import logging
 
 from flask import jsonify
@@ -6,8 +7,14 @@ from flask import request
 
 import predix.data.timeseries
 
-from . import api
+from . import api, query_string_to_dictionary
 
+# Let's patch the URL Lib mode to handle the Pythn2to3 Migration
+from future.standard_library import install_aliases
+install_aliases()
+
+from urllib.parse import urlparse
+ 
 timeseries = predix.data.timeseries.TimeSeries()
 
 @api.route('/datapoints')
@@ -60,10 +67,15 @@ def datapoints():
         ]
 
     """
-    # TODO: better error handling for no node/sensors selected
+    if request.args.get("node") is None or request.args.get("sensor") is None:
+        return jsonify([]), 402
+
     node = request.args.get('node')
     sensors = request.args.get('sensor').split(',')
     logging.info("Query: %s, %s" % (node, sensors))
+
+    if not _validate_node_and_sensor(node, sensors):
+        return jsonify([]), 402
 
     response = timeseries.get_datapoints(sensors, start='5y-ago', limit=10000,
             attributes={'node': node})
@@ -96,3 +108,19 @@ def datapoints():
         datapoints.append(data[key])
 
     return jsonify(datapoints)
+
+
+def _validate_node_and_sensor(node_value, sensor_values):
+    data = dict()
+    with open(
+            os.path.expanduser("~/.predix/volcano.json")) as volcano_cache:
+        data = json.loads(volcano_cache)
+
+    node_match = [
+        node for node in data["nodes"] if node["key"] == node_value]
+    sensor_match = [
+        sensor for sensor in data["sensors"] if sensor["key"] in sensor_values]
+
+    if len(node_match) != 1 or len(sensor_match) != 1:
+        return False
+    return True

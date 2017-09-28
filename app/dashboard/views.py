@@ -1,6 +1,7 @@
-
+import os
 import re
 import json
+import errno
 from flask import render_template
 
 import predix.data.asset
@@ -42,8 +43,25 @@ def home():
             "val": sensor['data_type'] + " (%s)" % (sensor['tag'])
             })
 
+    _cache_nodes_and_sensors(nodes, sensors)
     # Render the dashboard jinja2 template
     return render_template('home.html',
             sensors=json.dumps(natural_sort(sensors)),
             default_node=default_node,
             nodes=json.dumps(natural_sort(nodes)))
+
+
+def _cache_nodes_and_sensors(nodes, sensors):
+    cache_path = os.path.expanduser("~/.predix")
+    if not os.path.exists(cache_path):
+        try:
+            os.makedirs(cache_path)
+        except OSError as exc:
+            if exc.errno != errno.EEXIST:
+                raise
+    data = {
+        "sensors": sensors,
+        "nodes": nodes
+    }
+    with open("~/.predix/volcano.json", "w") as volcano_cache:
+        volcano_cache.write(json.dumps(data))
