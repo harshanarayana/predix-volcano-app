@@ -8,12 +8,6 @@ from flask import request
 import predix.data.timeseries
 
 from . import api, query_string_to_dictionary
-
-# Let's patch the URL Lib mode to handle the Pythn2to3 Migration
-from future.standard_library import install_aliases
-install_aliases()
-
-from urllib.parse import urlparse
  
 timeseries = predix.data.timeseries.TimeSeries()
 
