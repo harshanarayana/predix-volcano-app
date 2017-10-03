@@ -8,7 +8,7 @@ from flask import request
 import predix.data.timeseries
 
 from . import api, query_string_to_dictionary
- 
+
 timeseries = predix.data.timeseries.TimeSeries()
 
 @api.route('/datapoints')
@@ -42,21 +42,21 @@ def datapoints():
 
         [
             {
-                "GP_CO2": 32.035, 
+                "GP_CO2": 32.035,
                 "x": 1471421209000
-            }, 
+            },
             {
-                "GP_CO2": 32.035, 
+                "GP_CO2": 32.035,
                 "x": 1471423009000
-            }, 
+            },
             {
-                "GP_CO2": 32.035, 
+                "GP_CO2": 32.035,
                 "x": 1471424807000
-            }, 
+            },
             {
-                "GP_CO2": 32.035, 
+                "GP_CO2": 32.035,
                 "x": 1471426606000
-            }, 
+            },
             ...
         ]
 
@@ -107,7 +107,7 @@ def datapoints():
 def _validate_node_and_sensor(node_value, sensor_values):
     data = dict()
     with open(
-            os.path.expanduser("~/.predix/volcano.json")) as volcano_cache:
+        os.path.expanduser("~/.predix/volcano.json")) as volcano_cache:
         data = json.loads(volcano_cache)
 
     node_match = [
